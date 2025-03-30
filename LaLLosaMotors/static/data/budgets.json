@@ -1,0 +1,45 @@
+[
+  {
+    "id": 1,
+    "cliente": "Juan Pérez",
+    "vehiculo": "Seat Ibiza 1.6 TDI (2018)",
+    "fecha": "2023-06-15",
+    "observaciones": "Cliente habitual",
+    "items": [
+      {
+        "servicio": "Cambio de aceite y filtro",
+        "cantidad": 1,
+        "precio_unitario": 45.0
+      },
+      {
+        "servicio": "Cambio de filtro de aire",
+        "cantidad": 1,
+        "precio_unitario": 20.0
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "cliente": "María Rodríguez",
+    "vehiculo": "Renault Clio 1.2 (2020)",
+    "fecha": "2023-06-20",
+    "observaciones": "Revisión de los 30.000 km",
+    "items": [
+      {
+        "servicio": "Cambio de aceite y filtro",
+        "cantidad": 1,
+        "precio_unitario": 45.0
+      },
+      {
+        "servicio": "Revisión de frenos",
+        "cantidad": 1,
+        "precio_unitario": 35.0
+      },
+      {
+        "servicio": "Cambio de filtro de habitáculo",
+        "cantidad": 1,
+        "precio_unitario": 25.0
+      }
+    ]
+  }
+]

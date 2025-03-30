@@ -1,0 +1,231 @@
+{% extends 'layout.html' %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+    <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="LA LLOSA MOTORS" height="70" class="me-3">
+    <h1 class="display-4 text-lallosa m-0">LA LLOSA MOTORS</h1>
+</div>
+
+<!-- Sistema de Recordatorios ITV - AHORA AL PRINCIPIO DE LA PÁGINA -->
+<div class="card bg-dark text-white mb-5">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Recordatorios de ITV</h3>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNuevoRecordatorio">
+            <i class="bi bi-plus-circle me-1"></i> Nuevo Recordatorio
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Vehículo</th>
+                        <th>Matrícula</th>
+                        <th>Fecha ITV</th>
+                        <th>Días Restantes</th>
+                        <th>Observaciones</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-recordatorios">
+                    {% if recordatorios %}
+                        {% for r in recordatorios %}
+                            {% set dias = r.dias_restantes() %}
+                            {% set clase_alerta = 'table-danger' if dias < 0 else ('table-warning' if dias < 30 else '') %}
+                            <tr class="{{ clase_alerta }}">
+                                <td>{{ r.cliente }}</td>
+                                <td>{{ r.vehiculo }}</td>
+                                <td>{{ r.matricula }}</td>
+                                <td>{{ r.fecha_itv.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    {% if dias < 0 %}
+                                        <span class="badge bg-danger">¡VENCIDA!</span>
+                                    {% elif dias < 30 %}
+                                        <span class="badge bg-warning text-dark">{{ dias }} días</span>
+                                    {% else %}
+                                        <span class="badge bg-success">{{ dias }} días</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ r.observaciones }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger eliminar-recordatorio" data-id="{{ r.id }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center">No hay recordatorios de ITV registrados</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="jumbotron bg-dark text-light p-5 rounded-3 mb-5">
+    <p class="lead">Sistema de gestión de servicios y presupuestos para su taller</p>
+    <hr class="my-4">
+    <p>Una herramienta simple y eficiente para gestionar los servicios y crear presupuestos con y sin IVA.</p>
+    
+    <!-- Buscador -->
+    <div class="mt-3 mb-4">
+        <div class="input-group">
+            <span class="input-group-text bg-dark text-light border-secondary">
+                <i class="bi bi-search"></i>
+            </span>
+            <input type="text" id="buscador" class="form-control bg-dark text-white border-secondary" 
+                   placeholder="Buscar servicios o presupuestos..." aria-label="Buscar">
+        </div>
+        <div id="resultados-busqueda" class="mt-2 d-none">
+            <div class="card bg-dark border-secondary">
+                <div class="card-body p-0">
+                    <div id="resultados-servicios" class="border-bottom border-secondary">
+                        <h6 class="text-light p-2 m-0 bg-secondary bg-opacity-25">Servicios</h6>
+                        <ul class="list-group list-group-flush" id="lista-servicios"></ul>
+                    </div>
+                    <div id="resultados-presupuestos">
+                        <h6 class="text-light p-2 m-0 bg-secondary bg-opacity-25">Presupuestos</h6>
+                        <ul class="list-group list-group-flush" id="lista-presupuestos"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('servicios') }}">
+            <i class="bi bi-gear me-2"></i>Gestionar Servicios
+        </a>
+        <a class="btn btn-danger btn-lg" href="{{ url_for('presupuestos') }}">
+            <i class="bi bi-file-earmark-text me-2"></i>Crear Presupuesto
+        </a>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-gear-fill text-primary" style="font-size: 3rem;"></i>
+                <h3 class="mt-3">Gestión de Servicios</h3>
+                <p class="text-muted">Agregue, edite y elimine los servicios que ofrece su taller.</p>
+                <a href="{{ url_for('servicios') }}" class="btn btn-outline-primary">Ir a Servicios</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-file-earmark-text text-success" style="font-size: 3rem;"></i>
+                <h3 class="mt-3">Presupuestos</h3>
+                <p class="text-muted">Cree presupuestos detallados para sus clientes, con cálculo automático de IVA.</p>
+                <a href="{{ url_for('presupuestos') }}" class="btn btn-outline-success">Crear Presupuesto</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-printer-fill text-info" style="font-size: 3rem;"></i>
+                <h3 class="mt-3">Imprimir</h3>
+                <p class="text-muted">Imprima o guarde en PDF sus presupuestos para compartir con sus clientes.</p>
+                <a href="{{ url_for('presupuestos') }}" class="btn btn-outline-info">Ver Presupuestos</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-dark">
+    <div class="card-body">
+        <h3 class="mb-4">¿Cómo funciona?</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <div class="bg-primary rounded-circle text-center text-white" style="width: 40px; height: 40px; line-height: 40px;">1</div>
+                    </div>
+                    <div>
+                        <h5>Gestione sus servicios</h5>
+                        <p>Añada todos los servicios que ofrece su taller con sus precios.</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <div class="bg-primary rounded-circle text-center text-white" style="width: 40px; height: 40px; line-height: 40px;">2</div>
+                    </div>
+                    <div>
+                        <h5>Cree un nuevo presupuesto</h5>
+                        <p>Seleccione un cliente, el vehículo y añada los servicios necesarios.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <div class="bg-primary rounded-circle text-center text-white" style="width: 40px; height: 40px; line-height: 40px;">3</div>
+                    </div>
+                    <div>
+                        <h5>Revise el presupuesto</h5>
+                        <p>Compruebe el presupuesto con el cálculo automático de IVA.</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <div class="bg-primary rounded-circle text-center text-white" style="width: 40px; height: 40px; line-height: 40px;">4</div>
+                    </div>
+                    <div>
+                        <h5>Imprima o guarde</h5>
+                        <p>Imprima el presupuesto o guárdelo como PDF para compartirlo.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Nuevo Recordatorio ITV -->
+<div class="modal fade" id="modalNuevoRecordatorio" tabindex="-1" aria-labelledby="tituloModalRecordatorio" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tituloModalRecordatorio">Nuevo Recordatorio ITV</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form action="{{ url_for('nuevo_recordatorio_itv') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="cliente" class="form-label">Cliente</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="cliente" name="cliente" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="vehiculo" class="form-label">Vehículo</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="vehiculo" name="vehiculo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="matricula" class="form-label">Matrícula</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="matricula" name="matricula" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_itv" class="form-label">Fecha ITV</label>
+                        <input type="date" class="form-control bg-dark text-white border-secondary" id="fecha_itv" name="fecha_itv" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="observaciones" class="form-label">Observaciones</label>
+                        <textarea class="form-control bg-dark text-white border-secondary" id="observaciones" name="observaciones" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'layout.html' %}
+
+{% block title %}Servicios{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="text-lallosa"><i class="bi bi-gear me-2"></i>Gestión de Servicios</h1>
+    <button id="btnNuevoServicio" class="btn btn-lallosa">
+        <i class="bi bi-plus-circle me-2"></i>Nuevo Servicio
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio (sin IVA)</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="text-white">
+                    {% if servicios %}
+                        {% for servicio in servicios %}
+                            <tr>
+                                <td style="color: white !important;">{{ servicio.nombre }}</td>
+                                <td class="descripcion-servicio">{{ servicio.descripcion or '-' }}</td>
+                                <td style="color: white !important;">{{ "%.2f"|format(servicio.precio) }} €</td>
+                                <td>
+                                    <button 
+                                        class="btn btn-sm btn-outline-light me-1" 
+                                        onclick="editarServicio({{ servicio.id }}, '{{ servicio.nombre }}', '{{ servicio.descripcion }}', {{ servicio.precio }})">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <a href="{{ url_for('eliminar_servicio', id=servicio.id) }}" class="btn btn-sm btn-outline-danger btn-eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center" style="color: white !important;">No hay servicios registrados</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Nuevo/Editar Servicio -->
+<div class="modal fade" id="modalServicio" tabindex="-1" aria-labelledby="modalServicioLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalServicioLabel">Nuevo Servicio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formServicio" method="POST" action="{{ url_for('nuevo_servicio') }}">
+                    <input type="hidden" id="servicioId" name="id">
+                    <div class="mb-3">
+                        <label for="servicioNombre" class="form-label">Nombre del Servicio</label>
+                        <input type="text" class="form-control" id="servicioNombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="servicioDescripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="servicioDescripcion" name="descripcion" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="servicioPrecio" class="form-label">Precio (sin IVA)</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="servicioPrecio" name="precio" step="0.01" min="0" required>
+                            <span class="input-group-text">€</span>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-lallosa">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/services.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presupuesto #{{ presupuesto.id }} - LA LLOSA MOTORS</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    
+    <style>
+        @media print {
+            body {
+                background-color: white !important;
+                color: black !important;
+                font-family: Arial, sans-serif !important;
+            }
+            
+            .title-lallosa {
+                color: #e3342f !important;
+                font-weight: bold !important;
+            }
+            
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+            
+            .table th, .table td {
+                border-color: #ddd !important;
+            }
+            
+            .table thead th {
+                background-color: #e3342f !important;
+                color: white !important;
+                border-color: #e3342f !important;
+            }
+            
+            .total-row {
+                background-color: #f8f9fa !important;
+                font-weight: bold !important;
+            }
+            
+            .total-iva {
+                color: #e3342f !important;
+                font-weight: bold !important;
+                font-size: 1.2em !important;
+            }
+            
+            .cliente-info {
+                border: 1px solid #ddd !important;
+                padding: 15px !important;
+                margin-bottom: 20px !important;
+                background-color: #f8f9fa !important;
+            }
+            
+            .cliente-info h5 {
+                color: #e3342f !important;
+                margin-bottom: 15px !important;
+            }
+            
+            .reference {
+                font-size: 0.9em !important;
+                color: #6c757d !important;
+            }
+        }
+    </style>
+</head>
+<body data-bs-theme="dark">
+    <div class="container my-4">
+        <div class="no-print mb-3 text-center">
+            <button id="btnVolver" class="btn btn-secondary me-2">
+                <i class="bi bi-arrow-left me-2"></i>Volver
+            </button>
+            <button onclick="window.print()" class="btn btn-lallosa">
+                <i class="bi bi-printer me-2"></i>Imprimir
+            </button>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <!-- Cabecera -->
+                <div class="row mb-4">
+                    <div class="col-8">
+                        <h1 class="title-lallosa text-lallosa">LA LLOSA MOTORS</h1>
+                        <h2 class="mt-2">PRESUPUESTO</h2>
+                    </div>
+                    <div class="col-4 text-end">
+                        <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="LA LLOSA MOTORS" style="max-width: 180px;">
+                    </div>
+                </div>
+                
+                <!-- Fecha y Referencia -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <p>Fecha: {{ presupuesto.fecha.strftime('%d/%m/%Y') }}</p>
+                        <p class="reference">Ref: PRE-{{ presupuesto.fecha.strftime('%Y%m%d') }}{{ presupuesto.id }}</p>
+                    </div>
+                </div>
+                
+                <!-- Información del Cliente -->
+                <div class="cliente-info mb-4">
+                    <h5 class="text-lallosa">Información del Cliente</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless mb-0">
+                                <tr>
+                                    <th width="30%">Nombre:</th>
+                                    <td>{{ presupuesto.cliente }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Vehículo:</th>
+                                    <td>{{ presupuesto.vehiculo }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if presupuesto.observaciones %}
+                <div class="mb-4">
+                    <h5 class="text-lallosa">Observaciones:</h5>
+                    <p>{{ presupuesto.observaciones }}</p>
+                </div>
+                {% endif %}
+                
+                <!-- Servicios -->
+                <h5 class="text-lallosa mb-3">Servicios</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="bg-lallosa text-white">
+                            <tr>
+                                <th>Servicio</th>
+                                <th class="text-end">Precio (Sin IVA)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td class="descripcion-servicio">{{ item.servicio }}</td>
+                                    <td class="text-end">{{ "%.2f"|format(item.subtotal) }} €</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <th class="text-end">Subtotal:</th>
+                                <th class="text-end">{{ "%.2f"|format(total_sin_iva) }} €</th>
+                            </tr>
+                            <tr class="total-row">
+                                <th class="text-end">IVA (21%):</th>
+                                <th class="text-end">{{ "%.2f"|format(iva) }} €</th>
+                            </tr>
+                            <tr class="total-row">
+                                <th class="text-end">TOTAL:</th>
+                                <th class="text-end total-iva">{{ "%.2f"|format(total_con_iva) }} €</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <div class="mt-5">
+                    <h5>Condiciones:</h5>
+                    <ul>
+                        <li>Este presupuesto tiene una validez de 30 días desde la fecha de emisión.</li>
+                        <li>Los precios no incluyen IVA, que se añadirá en la factura final.</li>
+                        <li>El plazo estimado para la realización de los trabajos es de 3 a 5 días laborables.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/print.js') }}"></script>
+</body>
+</html>

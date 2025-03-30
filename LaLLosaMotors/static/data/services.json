@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "nombre": "Cambio de aceite y filtro",
+    "descripcion": "Cambio de aceite de motor y filtro de aceite",
+    "precio": 45.0
+  },
+  {
+    "id": 2,
+    "nombre": "Revisión de frenos",
+    "descripcion": "Comprobación de pastillas, discos y líquido de frenos",
+    "precio": 35.0
+  },
+  {
+    "id": 3,
+    "nombre": "Cambio de filtro de aire",
+    "descripcion": "Sustitución del filtro de aire del motor",
+    "precio": 20.0
+  },
+  {
+    "id": 4,
+    "nombre": "Cambio de filtro de combustible",
+    "descripcion": "Sustitución del filtro de combustible",
+    "precio": 30.0
+  },
+  {
+    "id": 5,
+    "nombre": "Cambio de filtro de habitáculo",
+    "descripcion": "Sustitución del filtro de polen/habitáculo",
+    "precio": 25.0
+  }
+]
